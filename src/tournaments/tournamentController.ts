@@ -1,6 +1,14 @@
-import { Body, Controller, Get, Path, Post, Query, Route, SuccessResponse } from "tsoa";
+import { Body, Controller, Get, Path, Post, Query, Route, Response, SuccessResponse } from "tsoa";
 import { Tournament } from "./tournament";
 import { TournamentCreationParams, TournamentService } from "./tournamentService";
+
+interface ValidationErrorJSON {
+    message: "Validation Failed";
+    details: {
+        [name: string]: unknown,
+        [teamfee: number]: unknown
+    }
+}
 
 @Route("tournaments")
 export class TournamentController extends Controller {
@@ -12,6 +20,7 @@ export class TournamentController extends Controller {
         return new TournamentService().get(tournamentId, name);
     }
 
+    @Response<ValidationErrorJSON>(422, "Validation Failed")
     @SuccessResponse("201", "Created")
     @Post()
     public async createTournament(
