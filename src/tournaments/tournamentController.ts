@@ -12,6 +12,11 @@ interface ValidationErrorJSON {
 
 @Route("tournaments")
 export class TournamentController extends Controller {
+    /**
+     * Retrieves the details of an existing tournament
+     * @param tournamentId The tournament ID
+     * @param name Provide a name to display (will remove later, I guess?)
+     */
     @Get("{tournamentId}")
     public async getTournament(
         @Path() tournamentId: number,
