@@ -1,23 +1,26 @@
-import { Tournament } from "./tournament";
+import { Tournament, TournamentModel } from "./tournament";
 
-export type TournamentCreationParams = Pick<Tournament, "name" | "dates" | "teamfee"| "playerfee" | "currency">
+export type TournamentCreationParams = Pick<Tournament, "name" | "dates" | "teamfee" | "playerfee" | "currency">
 
 export class TournamentService {
-    public get(id: number, name?: string): Tournament {
-        return {
-            id,
-            name: name ?? "Windmill",
-            dates: "May 2023",
-            teamfee: 200,
-            playerfee: 20,
-            currency: "€"
-        }
+    public async get(id: number): Promise<Tournament | null> {
+        return TournamentModel.findOne({ id: id }).exec()
     }
 
-    public create (tournamentCreationParams: TournamentCreationParams): Tournament {
-        return {
-            id: Math.floor(Math.random() * 10000),
+    public async create(tournamentCreationParams: TournamentCreationParams): Promise<Tournament> {
+        const item = {
+            id: await this.findUnusedID(),
             ...tournamentCreationParams
+        }
+        return new TournamentModel(item).save()
+    }
+
+    public async findUnusedID(): Promise<number> {
+        const newest = await TournamentModel.findOne().sort({ 'created_at': -1 }).exec()
+        if (newest === null) {
+            return 0
+        } else {
+            return newest.id + 1
         }
     }
 }
