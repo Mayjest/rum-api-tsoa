@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Path, Post, Query, Route, Response, SuccessResponse } from "tsoa";
+import { Body, Controller, Get, Path, Post, Query, Route, Response, SuccessResponse, Example } from "tsoa";
 import { Tournament } from "./tournament";
 import { TournamentCreationParams, TournamentService } from "./tournamentService";
 
@@ -17,6 +17,14 @@ export class TournamentController extends Controller {
      * @param tournamentId The tournament ID
      * @param name Provide a name to display (will remove later, I guess?)
      */
+    @Example<Tournament>({
+        id: 1,
+        name: "Windmill Windup",
+        dates: "May 2023",
+        teamfee: 200,
+        playerfee: 20,
+        currency: "€"
+    })
     @Get("{tournamentId}")
     public async getTournament(
         @Path() tournamentId: number,
