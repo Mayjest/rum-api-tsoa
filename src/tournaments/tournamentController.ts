@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Path, Post, Route, Response, SuccessResponse, Example } from "tsoa";
+import { Body, Controller, Get, Path, Post, Route, Response, SuccessResponse, Example, Delete } from "tsoa";
 import { Tournament } from "./tournament";
 import { TournamentCreationParams, TournamentService } from "./tournamentService";
 
@@ -45,5 +45,15 @@ export class TournamentController extends Controller {
     ): Promise<void> {
         this.setStatus(201)
         new TournamentService().create(requestBody)
+    }
+
+    @Delete("{tournamentId}")
+    public async deleteTournament(@Path() tournamentId: number): Promise<void> {
+        new TournamentService().delete(tournamentId)
+    }
+
+    @Delete("{tournamentId}/cascade")
+    public async deleteTournamentCascade(@Path() tournamentId: number): Promise<void> {
+        new TournamentService().delete(tournamentId, true)
     }
 }
