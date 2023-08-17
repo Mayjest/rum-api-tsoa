@@ -12,6 +12,11 @@ interface ValidationErrorJSON {
 
 @Route("tournaments")
 export class TournamentController extends Controller {
+
+    @Get()
+    public async getAllTournaments(): Promise<Tournament[]> {
+        return new TournamentService().getAll();
+    }
     /**
      * Retrieves the details of an existing tournament
      * @param tournamentId The tournament ID
