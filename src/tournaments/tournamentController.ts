@@ -47,11 +47,24 @@ export class TournamentController extends Controller {
         new TournamentService().create(requestBody)
     }
 
+    /**
+     * Deletes an existing tournament
+     * 
+     * This is to be used almost the entire time. When authorizations are added, club admins will use this
+     * 
+     * @param tournamentId The tournament ID
+     */
     @Delete("{tournamentId}")
     public async deleteTournament(@Path() tournamentId: number): Promise<void> {
         new TournamentService().delete(tournamentId)
     }
 
+    /**
+     * Deletes an existing tournament and removes that ID from any seasons that use it.
+     * 
+     * Should only be used by global admins, and in practise never at all.
+     * @param tournamentId The tournament ID
+     */
     @Delete("{tournamentId}/cascade")
     public async deleteTournamentCascade(@Path() tournamentId: number): Promise<void> {
         new TournamentService().delete(tournamentId, true)

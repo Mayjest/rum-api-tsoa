@@ -30,7 +30,8 @@ export class TournamentService {
         const seasons_with_tournament = await SeasonModel.find({ tournaments: { $in: [id] } }).exec()
         if (seasons_with_tournament.length > 0) {
             if (!cascade) {
-                throw new Error("Cannot delete tournament that is part of a season")
+                console.log(`Tournament ${id} is owned by a season, not deleting.`)
+                return { acknowledged: true, deletedCount: 0 }
             }
 
             seasons_with_tournament.map(async (season) => {
