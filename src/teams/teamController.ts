@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, Route, SuccessResponse } from "tsoa";
+import { Body, Controller, Get, Path, Post, Put, Route, SuccessResponse } from "tsoa";
 import { Team } from "./team";
-import { TeamCreationParams, TeamService } from "./teamService";
+import { TeamCreationParams, TeamService, TeamUpdateParams } from "./teamService";
 
 @Route("teams")
 export class TeamController extends Controller {
@@ -15,5 +15,13 @@ export class TeamController extends Controller {
     public async createTeam(@Body() requestBody: TeamCreationParams): Promise<void> {
         this.setStatus(201)
         new TeamService().create(requestBody)
+    }
+
+    @Put("{teamId}")
+    public async updateTournament(
+        @Path() teamId: number,
+        @Body() requestBody: TeamUpdateParams
+    ): Promise<Team | null> {
+        return new TeamService().update(teamId, requestBody)
     }
 }

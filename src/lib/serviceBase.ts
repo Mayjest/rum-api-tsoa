@@ -10,4 +10,12 @@ export class ServiceBase {
             return newest.id + 1
         }
     }
+
+    checkID(id: number, params: Partial<any>): void {
+        if (params.id) {
+            if (params.id !== id) {
+                throw new Error("Cannot change the ID of an item")
+            }
+        }
+    }
 }

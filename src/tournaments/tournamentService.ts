@@ -44,11 +44,7 @@ export class TournamentService extends ServiceBase {
     }
 
     public async update(id: number, tournamentUpdateParams: TournamentUpdateParams): Promise<Tournament | null> {
-        if (tournamentUpdateParams.id) {
-            if (tournamentUpdateParams.id !== id) {
-                throw new Error("Cannot change the ID of a tournament")
-            }
-        }
+        this.checkID(id, tournamentUpdateParams)
 
         return TournamentModel.findOneAndUpdate({ id: id }, tournamentUpdateParams, { new: true }).exec()
     }

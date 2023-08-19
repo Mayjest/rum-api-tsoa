@@ -2,6 +2,7 @@ import { ServiceBase } from "../lib/serviceBase";
 import { Team, TeamModel } from "./team";
 
 export type TeamCreationParams = Pick<Team, "name" | "division" | "tournamentID">
+export type TeamUpdateParams = Partial<Team>
 
 export class TeamService extends ServiceBase {
 
@@ -15,5 +16,10 @@ export class TeamService extends ServiceBase {
             ...teamCreationParams
         }
         return new TeamModel(item).save()
+    }
+
+    public async update(id: number, teamUpdateParams: TeamUpdateParams): Promise<Team | null> {
+        this.checkID(id, teamUpdateParams)
+        return TeamModel.findOneAndUpdate({ id: id }, teamUpdateParams, { new: true }).exec()
     }
 }
