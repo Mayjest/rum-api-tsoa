@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Path, Post, Route, Response, SuccessResponse, Example, Delete } from "tsoa";
+import { Body, Controller, Get, Path, Post, Route, Response, SuccessResponse, Example, Delete, Hidden } from "tsoa";
 import { Tournament } from "./tournament";
-import { TournamentCreationParams, TournamentService } from "./tournamentService";
+import { TournamentCreationParams, TournamentDeleteResult, TournamentService } from "./tournamentService";
 
 interface ValidationErrorJSON {
     message: "Validation Failed";
@@ -54,9 +54,19 @@ export class TournamentController extends Controller {
      * 
      * @param tournamentId The tournament ID
      */
+    @SuccessResponse("204", "Deleted")
+    @Response("403", "Tournament is referred to by a season, cannot delete",)
     @Delete("{tournamentId}")
-    public async deleteTournament(@Path() tournamentId: number): Promise<void> {
-        new TournamentService().delete(tournamentId)
+    public async deleteTournament(@Path() tournamentId: number): Promise<void | TournamentDeleteResult> {
+        this.setStatus(204)
+        const result = await new TournamentService().delete(tournamentId)
+        // If the delete failed, it's because the tournament is used by a season, 
+        // return a 403
+        if (!result.succeeded && result.seasonsAffected.length > 0) {
+            this.setStatus(403)
+            return result
+        }
+        return
     }
 
     /**
@@ -65,6 +75,7 @@ export class TournamentController extends Controller {
      * Should only be used by global admins, and in practise never at all.
      * @param tournamentId The tournament ID
      */
+    @Hidden()
     @Delete("{tournamentId}/cascade")
     public async deleteTournamentCascade(@Path() tournamentId: number): Promise<void> {
         new TournamentService().delete(tournamentId, true)
