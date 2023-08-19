@@ -1,10 +1,8 @@
 import { DeleteResult } from "mongodb";
 import { SeasonModel } from "../season/season";
 import { Tournament, TournamentModel } from "./tournament";
+import { ServiceBase } from "../lib/serviceBase";
 
-/**
- * @Hidden
- */
 export type TournamentCreationParams = Omit<Tournament, "id">
 
 export type TournamentUpdateParams = Partial<Tournament>
@@ -27,7 +25,7 @@ export type TournamentDeleteResult = {
     seasonsAffected: number[]
 }
 
-export class TournamentService {
+export class TournamentService extends ServiceBase {
 
     public async getAll(): Promise<Tournament[]> {
         return TournamentModel.find()
@@ -39,7 +37,7 @@ export class TournamentService {
 
     public async create(tournamentCreationParams: TournamentCreationParams): Promise<Tournament> {
         const item = {
-            id: await this.findUnusedID(),
+            id: await this.findUnusedID(TournamentModel),
             ...tournamentCreationParams
         }
         return new TournamentModel(item).save()
@@ -72,12 +70,4 @@ export class TournamentService {
         return { succeeded: true, deleteResult: await TournamentModel.deleteOne({ id: id }), seasonsAffected: seasons_with_tournament.map((season) => season.id) }
     }
 
-    public async findUnusedID(): Promise<number> {
-        const newest = await TournamentModel.findOne().sort({ 'created_at': -1 }).exec()
-        if (newest === null) {
-            return 1
-        } else {
-            return newest.id + 1
-        }
-    }
 }

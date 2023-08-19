@@ -18,6 +18,7 @@ export class TournamentController extends Controller {
     public async getAllTournaments(): Promise<Tournament[]> {
         return new TournamentService().getAll();
     }
+
     /**
      * Retrieves the details of an existing tournament
      * @param tournamentId The tournament ID
