@@ -5,8 +5,9 @@ import { Tournament, TournamentModel } from "./tournament";
 /**
  * @Hidden
  */
-export type TournamentCreationParams = Pick<Tournament, "name" | "dates" | "teamfee" | "playerfee" | "currency">
+export type TournamentCreationParams = Omit<Tournament, "id">
 
+export type TournamentUpdateParams = Partial<Tournament>
 /**
  * The result of a delete operation
  */
@@ -42,6 +43,16 @@ export class TournamentService {
             ...tournamentCreationParams
         }
         return new TournamentModel(item).save()
+    }
+
+    public async update(id: number, tournamentUpdateParams: TournamentUpdateParams): Promise<Tournament | null> {
+        if (tournamentUpdateParams.id) {
+            if (tournamentUpdateParams.id !== id) {
+                throw new Error("Cannot change the ID of a tournament")
+            }
+        }
+
+        return TournamentModel.findOneAndUpdate({ id: id }, tournamentUpdateParams, { new: true }).exec()
     }
 
     public async delete(id: number, cascade: boolean = false): Promise<TournamentDeleteResult> {

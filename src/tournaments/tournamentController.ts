@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Path, Post, Route, Response, SuccessResponse, Example, Delete, Hidden } from "tsoa";
+import { Body, Controller, Get, Path, Post, Route, Response, SuccessResponse, Example, Delete, Hidden, Put } from "tsoa";
 import { Tournament } from "./tournament";
-import { TournamentCreationParams, TournamentDeleteResult, TournamentService } from "./tournamentService";
+import { TournamentCreationParams, TournamentDeleteResult, TournamentService, TournamentUpdateParams } from "./tournamentService";
+import { Division } from "../division/division";
 
 interface ValidationErrorJSON {
     message: "Validation Failed";
@@ -28,7 +29,8 @@ export class TournamentController extends Controller {
         dates: "May 2023",
         teamfee: 200,
         playerfee: 20,
-        currency: "€"
+        currency: "€",
+        divisions: [Division.Mixed, Division.Open, Division.Women]
     })
     @Get("{tournamentId}")
     public async getTournament(
@@ -45,6 +47,15 @@ export class TournamentController extends Controller {
     ): Promise<void> {
         this.setStatus(201)
         new TournamentService().create(requestBody)
+    }
+
+    @Response<ValidationErrorJSON>(422, "Validation Failed")
+    @Put("{tournamentId}")
+    public async updateTournament(
+        @Path() tournamentId: number,
+        @Body() requestBody: TournamentUpdateParams
+    ): Promise<Tournament | null> {
+        return new TournamentService().update(tournamentId, requestBody)
     }
 
     /**

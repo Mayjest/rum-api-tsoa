@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Division } from "../division/division";
 
 /**
  * Tournament objects hold the basic information for a tournament 
@@ -26,7 +27,18 @@ export interface Tournament {
      * @isInt Must be a whole number
      */
     playerfee: number;
+    /**
+     * The currency the tournament is charged in
+     * May just get rid of this & not have an exchange rate facility thing
+     * 
+     * @example "€"
+     */
     currency: string;
+    /**
+     * The division(s) available at the tournament
+     * @example [Division.Mixed, Division.Womens]
+     */
+    divisions: Division[];
 }
 
 const TournamentSchema = new mongoose.Schema<Tournament>({
@@ -35,7 +47,8 @@ const TournamentSchema = new mongoose.Schema<Tournament>({
     dates: { type: String, required: true },
     teamfee: { type: Number, required: false },
     playerfee: { type: Number, required: false },
-    currency: { type: String, required: false, default: "£" }
+    currency: { type: String, required: false, default: "£" },
+    divisions: { type: [String], required: true }
 })
 
 export const TournamentModel = mongoose.model<Tournament>('Tournament', TournamentSchema)
