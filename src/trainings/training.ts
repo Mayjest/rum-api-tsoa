@@ -4,11 +4,18 @@ import { Division } from "../division/division";
 export interface Training {
     id: number;
     date: Date;
+    /**
+     * @example: "Bohunt School"
+     */
     location: string;
+    /**
+     * @example: 9
+     */
     price: number;
     /**
      * i.e Is it open to all or restricted?
      * If invite/elite it's false, for example
+     * @example: false
      */
     invitational: boolean;
 
@@ -16,6 +23,9 @@ export interface Training {
      * @example "Beginner" or "Elite"
      */
     level?: string;
+    /**
+     * @example ["Mixed", "Open", "Womens"]
+     */
     divisions?: Division[];
 }
 

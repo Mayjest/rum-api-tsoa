@@ -9,10 +9,12 @@ export type TrainingUpdateParams = Partial<Training>
 export type TrainingBulkCreationParams = {
     /**
      * The first training session (dates inclusive)
+     * @example "2023-09-01T20:00:00.000Z"
      */
     startingDate: Date;
     /**
      * The last training session (dates inclusive)
+     * @example "2023-09-22T20:00:00.000Z"
      */
     endingDate: Date;
     /**
@@ -44,11 +46,15 @@ export class TrainingService extends ServiceBase {
         const { startingDate, endingDate, cadence } = bulkParams
         const noOfTrainings = Math.floor((endingDate.getTime() - startingDate.getTime()) / (cadence * 24 * 60 * 60 * 1000)) + 1
         const trainings = Array(noOfTrainings).fill(training)
-        const newTrainings: Training[] = trainings.map((training, index) => ({
-            ...training,
-            id: this.findUnusedID(TrainingModel),
+        const newTrainings: Training[] = await Promise.all(trainings.map(async (training, index) => ({
+            id: await this.findUnusedID(TrainingModel),
+            location: training.location,
+            price: training.price,
+            invitational: training.invitational,
+            level: training.level,
+            divisions: training.divisions,
             date: new Date(startingDate.getTime() + (index * cadence * 24 * 60 * 60 * 1000))
-        }))
+        })))
         // check math
         if (newTrainings[newTrainings.length - 1].date.getTime() !== endingDate.getTime()) {
             throw new Error("Ending date does not match the cadence, did bad math")

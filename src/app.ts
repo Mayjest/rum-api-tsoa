@@ -49,5 +49,5 @@ app.use(function errorHandler(
         });
     }
 
-    next();
+    next(err);
 });
