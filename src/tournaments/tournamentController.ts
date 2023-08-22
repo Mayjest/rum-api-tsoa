@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Path, Post, Route, Response, SuccessResponse, Example, Delete, Hidden, Put } from "tsoa";
 import { Tournament } from "./tournament";
-import { TournamentCreationParams, TournamentDeleteResult, TournamentService, TournamentUpdateParams } from "./tournamentService";
+import { TournamentCreationParams, TournamentService, TournamentUpdateParams } from "./tournamentService";
 import { Division } from "../division/division";
 
 interface ValidationErrorJSON {
@@ -69,14 +69,14 @@ export class TournamentController extends Controller {
     @SuccessResponse("204", "Deleted")
     @Response("403", "Tournament is referred to by a season, cannot delete",)
     @Delete("{tournamentId}")
-    public async deleteTournament(@Path() tournamentId: number): Promise<void | TournamentDeleteResult> {
+    public async deleteTournament(@Path() tournamentId: number): Promise<void> {
         this.setStatus(204)
         const result = await new TournamentService().delete(tournamentId)
-        // If the delete failed, it's because the tournament is used by a season, 
+        // If it's not acknowledged, but it deleted something, it's because delete was called without cascade but
+        // referred to by a season. In that case, we want to return a 403
         // return a 403
-        if (!result.succeeded && result.seasonsAffected.length > 0) {
+        if (!result.acknowledged && result.deletedCount > 0) {
             this.setStatus(403)
-            return result
         }
         return
     }

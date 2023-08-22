@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Route, Response, SuccessResponse, Path } from "tsoa";
+import { Body, Controller, Get, Post, Route, Response, SuccessResponse, Path, Delete } from "tsoa";
 import { SeasonCreationParams, SeasonService } from "./seasonService";
 import { Season } from "./season";
 
@@ -37,4 +37,28 @@ export class SeasonController extends Controller {
         return new SeasonService().addTournament(seasonId, tournamentId)
     }
 
+    @Delete("{seasonId}/tournaments/{tournamentId}")
+    public async removeTournament(@Path() seasonId: number, @Path() tournamentId: number): Promise<Season | null> {
+        return new SeasonService().removeTournament(seasonId, tournamentId)
+    }
+
+    @Post("{seasonId}/teams/{teamId}")
+    public async addTeam(@Path() seasonId: number, @Path() teamId: number): Promise<Season | null> {
+        return new SeasonService().addTeam(seasonId, teamId)
+    }
+
+    @Delete("{seasonId}/teams/{teamId}")
+    public async removeTeam(@Path() seasonId: number, @Path() teamId: number): Promise<Season | null> {
+        return new SeasonService().removeTeam(seasonId, teamId)
+    }
+
+    @Post("{seasonId}/trainings/{trainingId}")
+    public async addTraining(@Path() seasonId: number, @Path() trainingId: number): Promise<Season | null> {
+        return new SeasonService().addTraining(seasonId, trainingId)
+    }
+
+    @Delete("{seasonId}/trainings/{trainingId}")
+    public async removeTraining(@Path() seasonId: number, @Path() trainingId: number): Promise<Season | null> {
+        return new SeasonService().removeTraining(seasonId, trainingId)
+    }
 }

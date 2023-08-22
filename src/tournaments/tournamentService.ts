@@ -1,29 +1,11 @@
 import { DeleteResult } from "mongodb";
-import { SeasonModel } from "../season/season";
-import { Tournament, TournamentModel } from "./tournament";
+import { SeasonService } from "../season/seasonService";
 import { ServiceBase } from "../lib/serviceBase";
+import { Tournament, TournamentModel } from "./tournament";
 
 export type TournamentCreationParams = Omit<Tournament, "id">
 
 export type TournamentUpdateParams = Partial<Tournament>
-/**
- * The result of a delete operation
- */
-export type TournamentDeleteResult = {
-    /**
-     * Whether the delete operation succeeded
-     */
-    succeeded: boolean,
-    /**
-     * If the season is deleted, will be the DeleteResult from mongo. Else null
-     */
-    deleteResult: DeleteResult | null,
-    /**
-     * Array of season IDs that referred to this tournament. If cascade was used they will have been updated
-     * to remove the ID. If it wasn't used then these tournaments are blocking the delete.
-     */
-    seasonsAffected: number[]
-}
 
 export class TournamentService extends ServiceBase {
 
@@ -49,21 +31,26 @@ export class TournamentService extends ServiceBase {
         return TournamentModel.findOneAndUpdate({ id: id }, tournamentUpdateParams, { new: true }).exec()
     }
 
-    public async delete(id: number, cascade: boolean = false): Promise<TournamentDeleteResult> {
+    /**
+     * 
+     * @param id ID of the tournament to delete
+     * @param cascade Where to cascade delete to seasons (DANGER!)
+     * @returns Promise<DeleteResult>. If acknowledged == false but deletedCount > 0, 
+     *          it means it was referred to by a season but could not cascade delete
+     */
+    public async delete(id: number, cascade: boolean = false): Promise<DeleteResult> {
         // Make sure the tournament isn't owned by a season
-        const seasons_with_tournament = await SeasonModel.find({ tournaments: { $in: [id] } }).exec()
+
+        const seasons_with_tournament = await new SeasonService().getSeasonIDsByTournamentID(id)
         if (seasons_with_tournament.length > 0) {
             if (!cascade) {
                 console.log(`Tournament ${id} is owned by a season, not deleting.`)
-                return { succeeded: false, deleteResult: null, seasonsAffected: seasons_with_tournament.map((season) => season.id) }
+                return { acknowledged: false, deletedCount: seasons_with_tournament.length }
             }
 
-            seasons_with_tournament.map(async (season) => {
-                season.tournaments = season.tournaments.filter((tournament) => tournament !== id)
-                await season.save()
-            })
+            await new SeasonService().removeTournamentFromAll(id)
         }
-        return { succeeded: true, deleteResult: await TournamentModel.deleteOne({ id: id }), seasonsAffected: seasons_with_tournament.map((season) => season.id) }
+        return await TournamentModel.deleteOne({ id: id })
     }
 
 }
